@@ -12,7 +12,8 @@ optimizer_runs = 1_000
 gas_limit = 1_000_000_000 # ETH is 30M, but we use a higher value.
 remappings = [
   "forge-std=test/utils/forge-std/",
-  "solady=lib/solady/src"
+  "solady=lib/solady/src",
+  "openzeppelin-contracts=lib/openzeppelin-contracts/"
 ]
 
 [fmt]
