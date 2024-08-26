@@ -16,7 +16,7 @@ contract AutoLiquidity is Ownable, ReentrancyGuard {
      * @param _uniswapRouter The address of the Uniswap V2 Router contract.
      * @param _token The address of the ERC20 token for which liquidity will be provided.
      */
-    constructor(address _uniswapRouter, address _token) {
+    constructor(address _uniswapRouter, address _token) Ownable(msg.sender) {
         require(_uniswapRouter != address(0), "Invalid Uniswap Router address");
         require(_token != address(0), "Invalid token address");
 
