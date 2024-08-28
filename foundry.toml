@@ -14,7 +14,7 @@ remappings = [
   "forge-std=test/utils/forge-std/",
   "solady=lib/solady/src",
   "@uniswap/v3-periphery/=lib/v3-periphery/contracts/",
-  "@openzeppelin=lib/openzeppelin-contracts/contracts/"
+  "@openzeppelin/=lib/openzeppelin-contracts/"
 ]
 
 [fmt]
