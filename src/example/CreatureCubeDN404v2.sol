@@ -59,6 +59,12 @@ contract CreatureCubeDN404 is DN404, Ownable, ERC2981 {
         _;
     }
 
+    modifier onlyOwnerInPhase2Or3() {
+        require(msg.sender == owner(), "Caller is not the owner");
+        require(currentPhase == 2 || currentPhase == 3, "Function can only be called in Phase 2 or 3");
+        _;
+    }
+
     modifier inPhase(uint8 phase) {
         require(currentPhase == phase, "Not allowed in this phase");
         _;
@@ -91,7 +97,7 @@ contract CreatureCubeDN404 is DN404, Ownable, ERC2981 {
 
     function lpMint(uint256 nftAmount)
         public
-        onlyOwnerInPhase1Or2 // Phase 2 or 3: Owner-only minting (for LP purposes)
+        onlyOwnerInPhase2Or3 // Phase 2 or 3: Owner-only minting (for LP purposes)
     {
         require(autoLPAddress != address(0), "AutoLP address not set");
         _mint(autoLPAddress, nftAmount * _unit());

@@ -6,8 +6,8 @@ import "../src/example/AutoLiquidity.sol";  // Adjust the path if necessary
 
 contract DeployAutoLiquidity is Script {
     // Replace with actual UniswapV2 Router and token addresses when deploying
-    address constant UNISWAP_V2_ROUTER = 0xDEd15184b382797338d29674f906b9bcD194B2CE;
-    address constant TOKEN_ADDRESS = 0x6fF7bFceb1cbAaF6b41EBE5f0f27048e42efE660;
+    address constant UNISWAP_V2_ROUTER = 0x8Da34c4e3499F3E48e3B365AB0904e71461D5f1D;
+    address constant TOKEN_ADDRESS = 0xb227D235A8CcE1e005ec93289D2C20eC7A4F8bCD;
 
     function run() external {
         // Start broadcasting to deploy the contract to the blockchain
