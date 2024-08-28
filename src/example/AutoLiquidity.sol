@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@uniswap/contracts/interfaces/IUniswapV2Router02.sol";
+import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract AutoLiquidity is Ownable, ReentrancyGuard {
@@ -41,7 +41,6 @@ contract AutoLiquidity is Ownable, ReentrancyGuard {
 
         // Calculate the minimum amounts with the user-defined slippage
         uint256 minTokenAmount = tokenAmount * (100 - slippagePercent) / 100;
-        uint256 minEthAmount = ethAmount * (100 - slippagePercent) / 100;
 
         // Approve the Uniswap router to spend the contract's tokens
         token.approve(address(uniswapRouter), tokenAmount);

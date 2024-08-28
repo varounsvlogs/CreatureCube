@@ -13,7 +13,7 @@ gas_limit = 1_000_000_000 # ETH is 30M, but we use a higher value.
 remappings = [
   "forge-std=test/utils/forge-std/",
   "solady=lib/solady/src",
-  "@uniswap/v2-periphery/=lib/v2-periphery/contracts/",
+  "@uniswap/v2-periphery/=lib/v2-periphery/",
   "@openzeppelin/=lib/openzeppelin-contracts/"
 ]
 
