@@ -30,6 +30,11 @@ contract CreatureCubeDN404 is DN404, Ownable, ERC2981 {
     // Global pause flag
     bool public paused = false;
 
+    // Track ETH from minting
+    uint256 public totalMintedETH = 0;
+    uint256 public artistWithdrawnETH = 0;
+    uint256 public lpWithdrawnETH = 0;
+
     constructor() {
         _initializeOwner(msg.sender);
         _setDefaultRoyalty(msg.sender, 500); // 5% royalty fee
@@ -84,6 +89,7 @@ contract CreatureCubeDN404 is DN404, Ownable, ERC2981 {
         checkPrice(nftAmount)
         inPhase(1) // Phase 1: Open to all
     {
+        totalMintedETH += msg.value; // Track total ETH received from minting
         _mint(msg.sender, nftAmount * _unit());
     }
 
@@ -103,6 +109,7 @@ contract CreatureCubeDN404 is DN404, Ownable, ERC2981 {
         _mint(autoLPAddress, nftAmount * _unit());
         setSkipNFTFor(autoLPAddress, true); // Set skipNFT for the LP address
     }
+
     // LP management functions
     function setAutoLP(address _autoLPAddress) public onlyOwner {
         autoLPAddress = _autoLPAddress;
@@ -110,8 +117,29 @@ contract CreatureCubeDN404 is DN404, Ownable, ERC2981 {
 
     function transferLPEth() public onlyOwner {
         require(autoLPAddress != address(0), "AutoLP address not set");
-        uint256 transferAmount = address(this).balance / 10; // 10% of contract balance
+        
+        uint256 maxLPAmount = (totalMintedETH * 10) / 100;
+        uint256 remainingLPAmount = maxLPAmount - lpWithdrawnETH;
+        uint256 transferAmount = address(this).balance < remainingLPAmount 
+            ? address(this).balance 
+            : remainingLPAmount;
+        
+        require(transferAmount > 0, "No LP funds available");
+        
+        lpWithdrawnETH += transferAmount;
         SafeTransferLib.safeTransferETH(autoLPAddress, transferAmount);
+    }
+
+    // Artist withdraw function (maximum 90% of the minted ETH)
+    function artistWithdraw(uint256 amount) public onlyOwner {
+        uint256 maxArtistAmount = (totalMintedETH * 90) / 100;
+        uint256 remainingArtistAmount = maxArtistAmount - artistWithdrawnETH;
+        uint256 withdrawAmount = amount > remainingArtistAmount ? remainingArtistAmount : amount;
+        
+        require(withdrawAmount > 0, "No artist funds available");
+        
+        artistWithdrawnETH += withdrawAmount;
+        SafeTransferLib.safeTransferETH(msg.sender, withdrawAmount);
     }
 
     // Mint end control
@@ -150,7 +178,7 @@ contract CreatureCubeDN404 is DN404, Ownable, ERC2981 {
         return super.supportsInterface(interfaceId);
     }
 
-    // Withdraw Ether
+    // Withdraw Ether (Fallback function)
     function withdraw() public onlyOwner {
         SafeTransferLib.safeTransferAllETH(msg.sender);
     }
