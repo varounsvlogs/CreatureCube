@@ -143,7 +143,7 @@ contract CreatureCubeDN404 is DN404, Ownable {
         require(withdrawAmount > 0, "No artist funds available");
         
         artistWithdrawnETH += withdrawAmount;
-        SafeTransferLib.safeTransferETH(msg.sender, withdrawAmount);
+        SafeTransferLib.safeTransferETH(creatorAddress, withdrawAmount);
     }
 
     // Mint end control
