@@ -41,6 +41,7 @@ contract AutoLiquidity is Ownable, ReentrancyGuard {
 
         // Calculate the minimum amounts with the user-defined slippage
         uint256 minTokenAmount = tokenAmount * (100 - slippagePercent) / 100;
+        uint256 minEthAmount = ethAmount * (100 - slippagePercent) / 100;
 
         // Approve the Uniswap router to spend the contract's tokens
         token.approve(address(uniswapRouter), tokenAmount);
@@ -50,9 +51,9 @@ contract AutoLiquidity is Ownable, ReentrancyGuard {
             address(token),            // Token address
             tokenAmount,               // Full token amount in the contract
             minTokenAmount,            // Minimum token amount based on slippage
-            ethAmount,              // Minimum ETH amount based on slippage
+            minEthAmount,              // Minimum ETH amount based on slippage
             msg.sender,                // The address receiving the LP tokens
-            block.timestamp + deadline // Custom deadline for the transaction
+            deadline                    // deadline for the transaction
         );
     }
 
@@ -81,7 +82,7 @@ contract AutoLiquidity is Ownable, ReentrancyGuard {
             minTokenAmount,            // Custom minimum token amount (slippage protection)
             minEthAmount,              // Custom minimum ETH amount (slippage protection)
             msg.sender,                // The address receiving the LP tokens
-            block.timestamp + deadline // Custom deadline for the transaction
+            deadline                   // deadline for the transaction
         );
     }
 

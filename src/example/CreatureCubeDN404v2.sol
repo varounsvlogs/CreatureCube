@@ -6,21 +6,21 @@ import "../DN404Mirror.sol";
 import {Ownable} from "solady/auth/Ownable.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {SafeTransferLib} from "solady/utils/SafeTransferLib.sol";
-import {ERC2981} from "@openzeppelin/contracts/token/common/ERC2981.sol";
 
 /**
  * @title CreatureCubeDN404
  * @notice CreatureCubeDN404 is an open edition NFT minting contract based on DN404, with a fixed mint price and no supply limits.
  * Minting ends when the owner calls `endMint`. Each NFT deed represents 1000 ERC20 tokens in the DN404 system.
  */
-contract CreatureCubeDN404 is DN404, Ownable, ERC2981 {
+contract CreatureCubeDN404 is DN404, Ownable {
     string private _name = "Creature Cubes";
     string private _symbol = "CUBE";
     string private _baseURI;
-    uint256 public constant MINT_PRICE = 0.0019 ether;
+    uint256 public constant MINT_PRICE = 0.008 ether;
     bool public mintingLive = true;
     bool public mintEnded = false;
     address public autoLPAddress;
+    address public creatorAddress;
     uint8 public currentPhase = 0;
     address public mirrorAddress; // Store the address of the mirror contract
 
@@ -37,7 +37,6 @@ contract CreatureCubeDN404 is DN404, Ownable, ERC2981 {
 
     constructor() {
         _initializeOwner(msg.sender);
-        _setDefaultRoyalty(msg.sender, 500); // 5% royalty fee
 
         // Start the project in Phase 0 (no minting allowed)
         currentPhase = 0;
@@ -98,7 +97,6 @@ contract CreatureCubeDN404 is DN404, Ownable, ERC2981 {
         onlyOwnerInPhase1Or2 // Phase 2 or 3: Owner-only minting
     {
         _mint(recipient, nftAmount * _unit());
-        setSkipNFTFor(recipient, true); // Set skipNFT for the recipient
     }
 
     function lpMint(uint256 nftAmount)
@@ -106,13 +104,18 @@ contract CreatureCubeDN404 is DN404, Ownable, ERC2981 {
         onlyOwnerInPhase2Or3 // Phase 2 or 3: Owner-only minting (for LP purposes)
     {
         require(autoLPAddress != address(0), "AutoLP address not set");
-        _mint(autoLPAddress, nftAmount * _unit());
         setSkipNFTFor(autoLPAddress, true); // Set skipNFT for the LP address
+        _mint(autoLPAddress, nftAmount * _unit());
     }
 
     // LP management functions
     function setAutoLP(address _autoLPAddress) public onlyOwner {
         autoLPAddress = _autoLPAddress;
+    }
+
+    // Artist functions
+    function setCreatorAddress(address _creatorAddress) public onlyOwner {
+        creatorAddress = _creatorAddress;
     }
 
     function transferLPEth() public onlyOwner {
@@ -132,6 +135,7 @@ contract CreatureCubeDN404 is DN404, Ownable, ERC2981 {
 
     // Artist withdraw function (maximum 90% of the minted ETH)
     function artistWithdraw(uint256 amount) public onlyOwner {
+        require(creatorAddress != address(0), "Creator address not set");
         uint256 maxArtistAmount = (totalMintedETH * 90) / 100;
         uint256 remainingArtistAmount = maxArtistAmount - artistWithdrawnETH;
         uint256 withdrawAmount = amount > remainingArtistAmount ? remainingArtistAmount : amount;
@@ -171,11 +175,6 @@ contract CreatureCubeDN404 is DN404, Ownable, ERC2981 {
     // Override _unit to ensure 1 NFT = 1000 Tokens
     function _unit() internal pure override returns (uint256) {
         return TOKENS_PER_NFT;
-    }
-
-    // ERC2981 Royalty Standard
-    function supportsInterface(bytes4 interfaceId) public view override(ERC2981) returns (bool) {
-        return super.supportsInterface(interfaceId);
     }
 
     // Withdraw Ether (Fallback function)
